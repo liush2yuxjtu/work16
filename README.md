@@ -73,7 +73,11 @@ python test_image_synthesis.py
 
 ## Visualization
 
-The repository includes a script (`run_clean_notebook.py`) that generates visualizations of the synthetic images and saves them to the `figures/` directory. The script:
+The repository includes two scripts for visualization:
+
+### Basic Visualization (`run_clean_notebook.py`)
+
+This script generates basic visualizations of the synthetic images and saves them to the `figures/` directory:
 
 - Creates simple 3D shapes (sphere, cube) and generates synthetic images
 - Creates a more complex example with multiple anatomical structures (brain, tumor, blood vessels, lesions)
@@ -81,15 +85,31 @@ The repository includes a script (`run_clean_notebook.py`) that generates visual
 - Generates multiple random samples from the same label map
 - Saves visualizations of different slices to show the 3D nature of the synthesis
 
-To run the visualization script:
+To run the basic visualization script:
 
 ```bash
 python run_clean_notebook.py
 ```
 
+### Full Pipeline Visualization (`full_pipeline.py`)
+
+This script implements a comprehensive end-to-end pipeline for medical image synthesis and saves the results to the `pipeline_figures/` directory:
+
+- Creates a realistic synthetic segmentation with multiple anatomical structures
+- Generates multiple modalities (T1-weighted, T2-weighted) from the same segmentation
+- Adds realistic noise and artifacts (Gaussian noise, bias field) to simulate real medical images
+- Saves all data as NIfTI files (`.nii.gz`) for compatibility with medical imaging software
+- Creates detailed visualizations of all modalities and processing steps
+
+To run the full pipeline script:
+
+```bash
+python full_pipeline.py
+```
+
 ### Example Visualizations
 
-The `figures/` directory contains various visualizations:
+#### Basic Visualizations (`figures/` directory)
 
 1. **Simple Shapes**: Visualizations of basic 3D shapes with different intensity distributions
    - `simple_shapes_slice_*.png`: Different slices through the 3D volume
@@ -101,49 +121,100 @@ The `figures/` directory contains various visualizations:
 3. **Multiple Samples**: Different random samples generated from the same label map
    - `multiple_samples.png`: Shows how different random seeds produce different intensity patterns
 
-These visualizations demonstrate the flexibility of the `RandomIntensityFromLabels` transform for generating synthetic medical images with controlled intensity distributions.
+#### Full Pipeline Visualizations (`pipeline_figures/` directory)
+
+1. **Multi-Modal Comparison**: Visualizations of different modalities and processing steps
+   - `full_pipeline_slice_*.png`: Comparison of segmentation, T1, T2, and processed images
+   - `modality_comparison.png`: Side-by-side comparison of all modalities for a single slice
+
+2. **Segmentation Overlay**: Visualization of the segmentation overlaid on the T1 image
+   - `segmentation_overlay.png`: Shows how the segmentation corresponds to the generated image
+
+3. **3D Visualization**: Multiple slices to show the 3D nature of the data
+   - `t1_3d_visualization.png`: Grid of slices through the T1 volume
+
+4. **NIfTI Files**: Medical imaging format files for use with specialized software
+   - `*.nii.gz`: Compressed NIfTI files for each modality and processing step
+
+These visualizations demonstrate the flexibility of the `RandomIntensityFromLabels` transform for generating synthetic medical images with controlled intensity distributions and realistic artifacts.
 
 ## Usage
 
-The notebook contains a standalone implementation that can be run directly. The main class `RandomIntensityFromLabels` can be integrated into any MONAI transform pipeline.
+### Basic Usage
 
-Example usage:
+The main class `RandomIntensityFromLabels` can be integrated into any MONAI transform pipeline:
 
 ```python
-import monai.transforms as mt
 from monai.transforms import Compose
+from your_module import RandomIntensityFromLabels, SamplingConfig
 
-# Configure the intensity sampling
+# Create a sampling configuration
 config = SamplingConfig(
     label_intensities={
         0: (0, 50),      # Background
-        1: (100, 150),   # Label 1
-        2: (200, 250)    # Label 2
+        1: (100, 150),   # Structure 1
+        2: (200, 250)    # Structure 2
     },
     label_distributions={
-        0: "uniform",    # Uniform distribution for background
-        1: "normal",     # Normal distribution for Label 1
-        2: "uniform"     # Uniform distribution for Label 2
+        0: "uniform",
+        1: "normal",
+        2: "uniform"
     },
     label_std={
-        1: 10.0          # Standard deviation for normal distribution (Label 1)
+        1: 10.0
     }
 )
 
 # Create a transform pipeline
-transforms = Compose([
-    # Other transforms...
+transform = Compose([
     RandomIntensityFromLabels(
         label_key="label",
         image_key="image",
         config=config,
         clamp_output_min=0.0,
         clamp_output_max=255.0
-    )
+    ),
+    # Add other transforms as needed
 ])
 
-# Apply to your data
-result = transforms(data)
+# Apply the transform
+data = {"label": your_segmentation}
+result = transform(data)
+```
+
+### Full Pipeline Usage
+
+For a complete end-to-end pipeline, you can use the `full_pipeline.py` script which demonstrates:
+
+1. Creating synthetic segmentations
+2. Generating multiple modalities (T1, T2)
+3. Adding realistic noise and artifacts
+4. Saving as NIfTI files
+5. Visualizing results
+
+The full pipeline can be run as:
+
+```bash
+python full_pipeline.py
+```
+
+Or imported and used in your own code:
+
+```python
+from full_pipeline import create_synthetic_segmentation, create_intensity_config, generate_synthetic_images
+
+# Create a segmentation
+segmentation = create_synthetic_segmentation()
+
+# Create intensity configurations for different modalities
+configs = create_intensity_config()
+
+# Generate synthetic images
+data = generate_synthetic_images(segmentation, configs)
+
+# Use the generated images in your application
+t1_image = data["t1"]
+t2_image = data["t2"]
 ```
 
 ## Implementation Details
