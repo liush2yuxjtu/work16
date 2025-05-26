@@ -71,6 +71,38 @@ To run the tests:
 python test_image_synthesis.py
 ```
 
+## Visualization
+
+The repository includes a script (`run_clean_notebook.py`) that generates visualizations of the synthetic images and saves them to the `figures/` directory. The script:
+
+- Creates simple 3D shapes (sphere, cube) and generates synthetic images
+- Creates a more complex example with multiple anatomical structures (brain, tumor, blood vessels, lesions)
+- Demonstrates the use of different intensity distributions (uniform, normal)
+- Generates multiple random samples from the same label map
+- Saves visualizations of different slices to show the 3D nature of the synthesis
+
+To run the visualization script:
+
+```bash
+python run_clean_notebook.py
+```
+
+### Example Visualizations
+
+The `figures/` directory contains various visualizations:
+
+1. **Simple Shapes**: Visualizations of basic 3D shapes with different intensity distributions
+   - `simple_shapes_slice_*.png`: Different slices through the 3D volume
+
+2. **Advanced Example**: More complex anatomical structures with different intensity distributions
+   - `advanced_example_slice_*.png`: Different slices through the 3D volume
+   - `advanced_example_multi_slice.png`: Multiple slices in a single figure
+
+3. **Multiple Samples**: Different random samples generated from the same label map
+   - `multiple_samples.png`: Shows how different random seeds produce different intensity patterns
+
+These visualizations demonstrate the flexibility of the `RandomIntensityFromLabels` transform for generating synthetic medical images with controlled intensity distributions.
+
 ## Usage
 
 The notebook contains a standalone implementation that can be run directly. The main class `RandomIntensityFromLabels` can be integrated into any MONAI transform pipeline.
